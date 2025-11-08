@@ -1,3 +1,15 @@
+'''
+Projeto Grasp:                  Nadine Vasconcelos e Sophia Ferreira
+Grasp na fase construtiva:      Ao colidir com um obstáculo, o novo movimento será realizado de modo randomizado;
+Tam LCR:                        Considerou-se inicialmente uma LCR de tamanho 3 (excluindo o movimento que provoca colisão/sáda do tabuleiro)
+Número de execuções (critério de parada): 30 sem atualização do best
+Busca local =                   É realizado uma busca local em cima das coordenadas de colisão, buscando contorná-las, para tal, 
+                                faz-se uma nova LCR evitando também os caminhos de colosão.
+'''
+## Heuristica Rigth, Up, Best
+## Consiste em: dirigir-se para direita sempre que possível, em caso de obstáculo, sobe (independente se haverá obstáculo ou não).
+## Ao concluir ao atingir o limite do tabuleiro, irá subir até o destino.
+
 #Problema de Roteamento de Robo
 import random
 import matplotlib.pyplot as plt
@@ -25,32 +37,13 @@ movimentos = {
     4: (-1, 0)   # Esquerda
 }
 
-## Heuristica Rigth, Up, Best
-## Consiste em: dirigir-se para direita sempre que possível, em caso de obstáculo, sobe (independente se haverá obstáculo ou não).
-## Ao concluir ao atingir o limite do tabuleiro, irá subir até o destino.
+pesoMovimentos = {
+    1: 10,   # Cima
+    2: 10,   # Direita
+    3: 5,    # Baixo
+    4: 5     # Esquerda
+}
 
-def heuristicaRUB():
-    posicao = inicio[:];
-    coordenadaDistino = inicio[:];
-    rota = [posicao[:]];
-    while(posicao != objetivo):
-        if posicao[0] != objetivo[0]:
-            movX, movY = movimentos[2];
-            coordenadaDistino[0] += movX;
-            coordenadaDistino[1] += movY;
-            if (tuple(coordenadaDistino) in obstaculos):
-                    coordenadaDistino = posicao[:];
-                    movX, movY = movimentos[1];
-                    coordenadaDistino[0] += movX;
-                    coordenadaDistino[1] += movY;
-        else:
-            movX, movY = movimentos[1];
-            coordenadaDistino[0] += movX;
-            coordenadaDistino[1] += movY;
-        posicao = coordenadaDistino[:];
-        rota.append(posicao[:]);
-    return rota;
-            
 def calculaCusto(rota):
     custo = 0;
     for i in range(len(rota)-1):
@@ -83,6 +76,29 @@ def imprimeGrafico(melhorRota):
     plt.scatter(z, w, color='#d00000', marker='x')
     plt.show()
 
-rota = heuristicaRUB();
+
+sentido = 0;
+posicao = inicio[:];
+rota = [inicio[:]];
+coordenadaDistino = posicao[:];
+
+while(posicao != objetivo):
+    if sentido == 0:
+        movX, movY = movimentos[1];
+        coordenadaDistino[0] = movX + posicao[0];
+        coordenadaDistino[1] = movY + posicao[1];
+        sentido = 1;
+    else:
+        movX, movY = movimentos[2];
+        coordenadaDistino[0] = movX + posicao[0];
+        coordenadaDistino[1] = movY + posicao[1];
+        sentido = 0;
+    posicao = coordenadaDistino[:];
+    rota.append(posicao[:]);
+    
+
+
+
+#rota = heuristicaRUB();
 imprimeGrafico(rota);
 print("Melhor custo: ",calculaCusto(rota));
