@@ -44,6 +44,35 @@ pesoMovimentos = {
     4: 5     # Esquerda
 }
 
+tamanhoLCR = 3;
+condPlator = 50;
+
+def geraMovimentoAleatorio():
+    for movimento in movimentos:
+        movX, movY = movimentos[movimento];
+        coordenadaDestino[0] = movX + posicao[0];
+        coordenadaDestino[1] = movY + posicao[1];
+        listaDestinos[movimento-1][1] = coordenadaDestino[:]
+        if tuple(coordenadaDestino) in obstaculos:
+            listaDestinos[movimento-1][2] = pesoMovimentos[movimento] * 50;
+        elif coordenadaDestino[0] < 0  or coordenadaDestino[0] >= N or coordenadaDestino[1] < 0 or coordenadaDestino[0] >= N:
+            listaDestinos[movimento-1][2] = pesoMovimentos[movimento] * 100;
+        else:
+            listaDestinos[movimento-1][2] = pesoMovimentos[movimento];
+    
+    LCR = sorted(listaDestinos, key=lambda objDestino: objDestino[2])[0:tamanhoLCR];
+    pesos = [];
+    for objDestino in LCR:
+        if tuple(objDestino[1]) in obstaculos:
+            pesos.append(pesoMovimentos[objDestino[0]] / 10);
+        elif objDestino[1][0] < 0  or objDestino[1][0] >= N or objDestino[1][1] < 0 or objDestino[1][0] >= N:
+            pesos.append(0);
+        else:
+            pesos.append(pesoMovimentos[objDestino[0]]);
+            
+    return random.choices(LCR, weights=pesos, k=1)[0];
+
+
 def calculaCusto(rota):
     custo = 0;
     for i in range(len(rota)-1):
@@ -80,25 +109,47 @@ def imprimeGrafico(melhorRota):
 sentido = 0;
 posicao = inicio[:];
 rota = [inicio[:]];
-coordenadaDistino = posicao[:];
+rotaMov = [];
+coordenadaDestino = posicao[:];
+#LCR = [];
+listaDestinos = [];
+for movimento in movimentos:
+    listaDestinos.append([movimento, inicio[:], 0]);
+
 
 while(posicao != objetivo):
     if sentido == 0:
         movX, movY = movimentos[1];
-        coordenadaDistino[0] = movX + posicao[0];
-        coordenadaDistino[1] = movY + posicao[1];
+        coordenadaDestino[0] = movX + posicao[0];
+        coordenadaDestino[1] = movY + posicao[1];
         sentido = 1;
+        if tuple(coordenadaDestino) in obstaculos:
+            #coordenadaDestino = geraMovimentoAleatorio();
+            objCoordenadaDestino = geraMovimentoAleatorio();
+            posicao = objCoordenadaDestino[1][:];
+            rotaMov.append(objCoordenadaDestino[0]);
+        else:
+            rotaMov.append(1);
+            posicao = coordenadaDestino[:];
+            rota.append(posicao[:]);
     else:
         movX, movY = movimentos[2];
-        coordenadaDistino[0] = movX + posicao[0];
-        coordenadaDistino[1] = movY + posicao[1];
+        coordenadaDestino[0] = movX + posicao[0];
+        coordenadaDestino[1] = movY + posicao[1];
         sentido = 0;
-    posicao = coordenadaDistino[:];
-    rota.append(posicao[:]);
+        if tuple(coordenadaDestino) in obstaculos:
+            #coordenadaDestino = geraMovimentoAleatorio();
+            objCoordenadaDestino = geraMovimentoAleatorio();
+            posicao = objCoordenadaDestino[1][:];
+            rotaMov.append(objCoordenadaDestino[0]);
+        else:
+            rotaMov.append(2);
+            posicao = coordenadaDestino[:];
+            rota.append(posicao[:]);
     
 
 
-
+geraMovimentoAleatorio();
 #rota = heuristicaRUB();
 imprimeGrafico(rota);
 print("Melhor custo: ",calculaCusto(rota));
