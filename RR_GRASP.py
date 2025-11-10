@@ -44,6 +44,7 @@ pesoMovimentos = {
     4: 5     # Esquerda
 }
 
+random.seed()
 tamanhoLCR = 3;
 condPlator = 50;
 
@@ -53,9 +54,9 @@ def geraMovimentoAleatorio():
         coordenadaDestino[0] = movX + posicao[0];
         coordenadaDestino[1] = movY + posicao[1];
         listaDestinos[movimento-1][1] = coordenadaDestino[:]
-        if tuple(coordenadaDestino) in obstaculos:
+        if tuple(coordenadaDestino) in obstaculos or tuple(coordenadaDestino) in rota:
             listaDestinos[movimento-1][2] = pesoMovimentos[movimento] * 50;
-        elif coordenadaDestino[0] < 0  or coordenadaDestino[0] >= N or coordenadaDestino[1] < 0 or coordenadaDestino[0] >= N:
+        elif coordenadaDestino[0] < 0  or coordenadaDestino[0] >= N or coordenadaDestino[1] < 0 or coordenadaDestino[1] >= N:
             listaDestinos[movimento-1][2] = pesoMovimentos[movimento] * 100;
         else:
             listaDestinos[movimento-1][2] = pesoMovimentos[movimento];
@@ -116,40 +117,37 @@ listaDestinos = [];
 for movimento in movimentos:
     listaDestinos.append([movimento, inicio[:], 0]);
 
+i = 0
 
 while(posicao != objetivo):
-    if sentido == 0:
+    if (sentido == 0 and posicao[1] < N-1) or (sentido == 1 and posicao[1] < N-1 and posicao[0] == objetivo[0]):
         movX, movY = movimentos[1];
         coordenadaDestino[0] = movX + posicao[0];
         coordenadaDestino[1] = movY + posicao[1];
-        sentido = 1;
         if tuple(coordenadaDestino) in obstaculos:
-            #coordenadaDestino = geraMovimentoAleatorio();
             objCoordenadaDestino = geraMovimentoAleatorio();
             posicao = objCoordenadaDestino[1][:];
             rotaMov.append(objCoordenadaDestino[0]);
         else:
-            rotaMov.append(1);
+            sentido = 1;
             posicao = coordenadaDestino[:];
-            rota.append(posicao[:]);
-    else:
+            rotaMov.append(1);
+    elif (sentido == 1 and posicao[0] < N-1) or (sentido == 0 and posicao[0] < N-1 and posicao[1] == objetivo[1]):
         movX, movY = movimentos[2];
         coordenadaDestino[0] = movX + posicao[0];
         coordenadaDestino[1] = movY + posicao[1];
-        sentido = 0;
         if tuple(coordenadaDestino) in obstaculos:
-            #coordenadaDestino = geraMovimentoAleatorio();
             objCoordenadaDestino = geraMovimentoAleatorio();
-            posicao = objCoordenadaDestino[1][:];
             rotaMov.append(objCoordenadaDestino[0]);
+            posicao = objCoordenadaDestino[1][:];
         else:
-            rotaMov.append(2);
+            sentido = 0;
             posicao = coordenadaDestino[:];
-            rota.append(posicao[:]);
+            rotaMov.append(2);
+    rota.append(posicao[:]);
+    i += 1;
     
 
 
-geraMovimentoAleatorio();
-#rota = heuristicaRUB();
 imprimeGrafico(rota);
-print("Melhor custo: ",calculaCusto(rota));
+#print("Melhor custo: ",calculaCusto(rota));
