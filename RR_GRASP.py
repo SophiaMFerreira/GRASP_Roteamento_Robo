@@ -74,7 +74,51 @@ def geraMovimentoAleatorio():
             
     return random.choices(LCR, weights=pesos, k=1)[0];
 
+def buscaLocal(rota):
+    for i in range(0, len(rota)-1):
+        novaRota = rota[:];
+        coordenada = rota[i];
+        if tuple(coordenada) in obstaculos:
+            pesoVizinhos = [];
+            coordenadaAnterior = rota[i - 1][:];
+            coordenadaPosterior = rota[i + 1][:];
+            coordenadasVizinhasObstaculo = [];
+            cDistino = coordenada[:];
+            for movimento in movimentos:
+                movX, movY = movimentos[movimento];
+                coordenadaDestino[0] = movX + coordenadaAnterior[0];
+                coordenadaDestino[1] = movY + coordenadaAnterior[1];
+                if not tuple(coordenadaDestino) in obstaculos:
+                    coordenadasVizinhasObstaculo.append(coordenadaDestino[:]);
+                    pesoVizinhos.append(6 / movimento);
+            if len(pesoVizinhos) > 0:
+                posicao = random.choices(coordenadasVizinhasObstaculo, weights=pesoVizinhos, k=1)[0];
+                novaRota.append(posicao[:]);
+                
+                while(posicao != coordenadaPosterior):
+                    if posicao[0] < coordenadaPosterior[0]:
+                        movX, movY = movimentos[2];
+                        cDistino[0] += movX;
+                        cDistino[1] += movY;
+                    elif posicao[1] < coordenadaPosterior[1]:
+                        movX, movY = movimentos[1];
+                        cDistino[0] += movX;
+                        cDistino[1] += movY;
+                    elif  posicao[0] > coordenadaPosterior[0]:
+                        movX, movY = movimentos[4];
+                        cDistino[0] += movX;
+                        cDistino[1] += movY;
+                    elif  posicao[1] > coordenadaPosterior[1]:
+                        movX, movY = movimentos[3];
+                        cDistino[0] += movX;
+                        cDistino[1] += movY;
+                    posicao = cDistino[:];
+                    novaRota.append(posicao[:]);
+                novaRota = rota[:i-1] + novaRota + rota[i+2:]
 
+    return novaRota;
+
+      
 def calculaCusto(rota):
     custo = 0;
     for i in range(len(rota)-1):
@@ -84,6 +128,8 @@ def calculaCusto(rota):
         else:
             custo += 1;        
     return custo;
+
+
 
 def imprimeGrafico(melhorRota):
     x=[]
@@ -150,6 +196,13 @@ while (iP < condPlator) and (i < maxIteracao):
                 rotaMov.append(2);
         rota.append(posicao[:]);
         custo = calculaCusto(rota);
+        for i in range(0, 10):
+            rotaBuscaLocal = buscaLocal(rota);
+            custoRotaLocal = calculaCusto(rotaBuscaLocal);
+            if(custoRotaLocal < custo):
+                custo = custoRotaLocal;
+                rota = rotaBuscaLocal[:];
+        
         if(custo < melhorCusto):
             melhorCusto = custo;
             melhorRota = rota[:];
