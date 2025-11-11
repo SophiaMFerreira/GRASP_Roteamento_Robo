@@ -79,7 +79,7 @@ def geraMovimentoAleatorio():
     for objDestino in LCR:
         if tuple(objDestino[1]) in obstaculos:
             pesos.append(pesoMovimentos[objDestino[0]] / 10);
-        elif objDestino[1][0] < 0  or objDestino[1][0] >= N or objDestino[1][1] < 0 or objDestino[1][0] >= N:
+        elif objDestino[1][0] < 0  or objDestino[1][0] >= N or objDestino[1][1] < 0 or objDestino[1][1] >= N:
             pesos.append(0);
         else:
             pesos.append(pesoMovimentos[objDestino[0]]);
