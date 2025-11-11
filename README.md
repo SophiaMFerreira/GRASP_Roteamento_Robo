@@ -12,7 +12,7 @@ O processo combina uma fase construtiva (geração da rota) e uma fase de busca 
 - **Tipo:** GRASP (Greedy Randomized Adaptive Search Procedure)  
 - **Fase ativa:** Construtiva e Busca Local
 - **Tamanho da LCR:** 3
-- **Número de execuções (critério de parada):** 50
+- **Número de execuções (critério de parada):** 100
 - **Busca Local**: Remove ciclos e aplica um reparo de 1 passo para corrigir movimentos “problemáticos” (quando o robô pisa em obstáculo ou anda para trás, movimentos para esquerda ou para baixo), testando movimentos alternativos Right e Up e aceitando apenas se reduzirem o custo total.
 
 ---
@@ -284,7 +284,7 @@ Assim, a cada iteração do GRASP, a solução é:
 ### 🧭 Resultado Final
 
 Após várias iterações, o custo médio começa alto e diminui progressivamente conforme as rotas são refinadas.
-O algoritmo para quando o melhor custo não melhora em 50 execuções consecutivas (condição de platô), resultando em soluções estáveis com custos próximos de 150.
+O algoritmo para quando o melhor custo não melhora em 100 execuções consecutivas (condição de platô), resultando em soluções estáveis com custos próximos de 150.
 
 
 <div align="center">
