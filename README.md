@@ -16,7 +16,7 @@ A solução proposta simula a movimentação e a escolha adaptativa de caminhos 
 
 ## ⚙️ Sobre a Solução GRASP
 
-### Fase Construtiva
+### 🔧 Fase Construtiva
 
 Na fase construtiva, o robô inicia sua trajetória movendo-se **em diagonal (para cima e para a direita)** até encontrar um obstáculo.  
 Ao detectar o obstáculo, o sistema gera uma **LCR (Lista de Candidatos Restrita)** contendo as **3 melhores coordenadas** entre as 4 possíveis para o próximo movimento, definidas com base no seguinte **critério de penalidade**:
@@ -50,16 +50,102 @@ Quando encontra um novo obstáculo, é chamada a função `geraMovimentoAleatori
 
 ### 💰 Cálculo de Custo
 
-O cálculo de custos considera os pesos apresentados anteriormente e pode ser representado de forma simplificada como:
+O cálculo de custos considera os pesos já apresentados anteriormente e pode ser representado da seguinte forma: 
 
 ```python
-def calcular_custo(movimento):
-    
-    pesos = {"cima": 10, "direita": 10, "baixo": 5, "esquerda": 5}
-    return pesos.get(movimento, 0)
+def calculaCusto(rota):
+    custo = 0
+    visitadas = set()  #Guarda posições já visitadas (tuplas)
+
+    for i in range(len(rota) - 1):  #Percorre as posições menos a última
+        posicaoAtual = rota[i]
+        proxima = rota[i + 1]
+
+        if tuple(posicaoAtual) in obstaculos:
+            custo += 50   #Penaliza pisar em obstáculo (posição atual)
+        else:
+            custo += 1    #Custo padrão da posição
+
+        if tuple(posicaoAtual) in visitadas:
+            custo += 10   #Penaliza revisita de posição já percorrida
+
+        dx = proxima[0] - posicaoAtual[0]
+        dy = proxima[1] - posicaoAtual[1]
+        if dx < 0 or dy < 0:
+            custo += 10   #Penaliza movimento de retorno (left or down)
+
+        visitadas.add(tuple(posicaoAtual)) #Marca a posição atual como visitada
+
+    return custo
 ```
 
-## Elaborado por: Nadine Vasconcelos e Sophia Ferreira
+---
+
+### 🔎 Busca Local
+
+#### Refinamento 1 — Remoção de Ciclo
+
+```python
+#Refinamento 1 - Remove ciclo se a posição atual já apareceu antes na rota corta o trecho do meio
+        if rota.count(posicao) > 1:
+            primeiraOcorrencia = next(k for k in range(len(rota)-1) if rota[k] == posicao)
+            rota = rota[:primeiraOcorrencia + 1]
+```
+
+📘 Explicação:
+- Se o robô voltar a uma célula que ele já visitou, isso significa que ele está “andando em círculos”;
+- Esse trecho intermediário é desnecessário e só aumenta o custo (porque a função calculaCusto penaliza revisitas);
+- Então assim que detectamos essa repetição cortamos tudo que estava entre as duas ocorrências.  
+
+➡️ Resultado: a rota fica mais curta e eficiente.
+
+#### Refinamento 2 — Reparo 1-passo
+
+```python
+#Refinamento 2 - Reparo 1-passo apenas no último ponto se for "problemático", ou seja,
+        #o problema é quando a célula é obstáculo ou passo para trás (anti right-up).
+        if len(rota) >= 2:
+            anterior = rota[-2]
+            atual    = rota[-1]       
+            dx = atual[0] - anterior[0]
+            dy = atual[1] - anterior[1]
+            passo_para_tras = (dx < 0 or dy < 0)
+            em_obstaculo    = tuple(atual) in obstaculos
+        
+            if em_obstaculo or passo_para_tras:
+                custo_atual = calculaCusto(rota)     
+                candidatos_mov = (2, 1) #Tenta movimentos 1 e 2 (right up) e só aplica se reduzir custo
+                aplicado = False
+                for mov in candidatos_mov:
+                    movX, movY = movimentos[mov]
+                    nx, ny = anterior[0] + movX, anterior[1] + movY
+        
+                    #Regras básicas do tabuleiro e sem obstáculo
+                    if not (0 <= nx < N and 0 <= ny < N):
+                        continue
+                    if (nx, ny) in obstaculos:
+                        continue
+                    rota_teste = rota[:-1] + [[nx, ny]]
+                    if calculaCusto(rota_teste) < custo_atual:
+                        rota = rota_teste
+                        posicao = rota[-1][:]   
+                        aplicado = True
+                        break  #Se não aplicar nenhum desvio melhor mantém como está
+        custo = calculaCusto(rota)
+```
+
+📘 Explicação:
+Depois que o robô dá um novo passo, verificamos se ele entrou em uma célula “ruim”:
+- **Pisou em obstáculo**, que é muito penalizado (+50 no custo);
+- **Andou para trás** (left-down), que fere a heurística right-up (+10 no custo);
+
+Se isso acontecer, testamos somente dois candidatos de desvio a partir do ponto anterior: Direita (2) ou Cima (1). Se alguma dessas opções gerar um custo total menor, substituímos o ponto atual pelo novo.
+
+➡️ Resultado: a rota se ajusta automaticamente, sem recomeçar, e melhora passo a passo.
+
+---
+
+## Elaborado por: Nadine Vasconcellos e Sophia Ferreira
 
 
 
