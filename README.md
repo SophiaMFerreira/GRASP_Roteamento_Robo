@@ -196,20 +196,20 @@ Se o robô retornar a uma célula já visitada, o trecho entre as duas ocorrênc
 
 ```python
 def buscaLocal(rota):
-    posicoesVisitadas = {}
-    rotaSemCiclo = []
+    posicoesVisitadas = {} #Guarda cada posição já visitada e o índice onde ela apareceu pela primeira vez
+    rotaSemCiclo = [] #Nova rota sem repetições, versão "limpa" da original
 
     for posicao in rota:
         coordenadaPosicao = tuple(posicao);
         if coordenadaPosicao in posicoesVisitadas:
-            indiceRepetido = posicoesVisitadas[coordenadaPosicao];
-            rotaSemCiclo = rotaSemCiclo[:indiceRepetido + 1];
-            posicoesVisitadas = {tuple(rotaSemCiclo[i]): i for i in range(len(rotaSemCiclo))};
+            indiceRepetido = posicoesVisitadas[coordenadaPosicao]; 
+            rotaSemCiclo = rotaSemCiclo[:indiceRepetido + 1]; #Remoção da parte intermediária
+            posicoesVisitadas = {tuple(rotaSemCiclo[i]): i for i in range(len(rotaSemCiclo))}; #Reconstrói o dicionário de posições já visitadas
         else:
             posicoesVisitadas[coordenadaPosicao] = len(rotaSemCiclo);
-            rotaSemCiclo.append(posicao);
+            rotaSemCiclo.append(posicao); 
 
-    melhorRota = rotaSemCiclo[:]
+    melhorRota = rotaSemCiclo[:] 
     melhorCusto = calculaCusto(melhorRota)
 ```
 
@@ -232,19 +232,19 @@ i = 1;
         dx = atual[0] - anterior[0];
         dy = atual[1] - anterior[1];
 
-        if (tuple(atual) in obstaculos) or (dx < 0 or dy < 0):
+        if (tuple(atual) in obstaculos) or (dx < 0 or dy < 0): #Se o ponto atual for um obstáculo ou se o passo for "para trás" (Left-Down) esse trecho deve ser melhorado
             custoAtual = melhorCusto;
-            for mov in (2, 1):
+            for mov in (2, 1): #Teste das melhores alternativas, canditados de reparo
                 movX, movY = movimentos[mov];
                 nx, ny = anterior[0] + movX, anterior[1] + movY;
-                if not (0 <= nx < N and 0 <= ny < N):
+                if not (0 <= nx < N and 0 <= ny < N): #Fora do limite do tabuleiro
                     continue
-                if (nx, ny) in obstaculos:
+                if (nx, ny) in obstaculos: #Caiu no obstaculo
                     continue
                 if [nx, ny] == proxima:
                     continue
 
-                rotaTeste = melhorRota[:i] + [[nx, ny]] + melhorRota[i + 1:];
+                rotaTeste = melhorRota[:i] + [[nx, ny]] + melhorRota[i + 1:]; #Cria uma nova rota substituindo as coordenadas problemáticas pela coordenada candidata
                 custoTeste = calculaCusto(rotaTeste);
 ```
 
@@ -265,7 +265,7 @@ custo = calculaCusto(rota)
             custo = custoRotaLocal;
             rota = rotaBuscaLocal[:];
 
-    if (custo < melhorCusto):
+    if (custo < melhorCusto): #Verifica se a rota atual é melhor que a rota encontrada até agora
         melhorCusto = custo;
         melhorRota = rota[:];
         iP = 0;
