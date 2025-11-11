@@ -287,5 +287,13 @@ Após várias iterações, o custo médio começa alto e diminui progressivament
 O algoritmo para quando o melhor custo não melhora em 50 execuções consecutivas (condição de platô), resultando em soluções estáveis com custos próximos de 150.
 
 
+<div align="center">
+        <img width="600" alt="PlotGrasp143VIVA" src="https://github.com/user-attachments/assets/a7fa1b79-9bf1-49fc-b2f9-9297d5c6cbd9" />
+</div>
+
+
+
+
+
 
 
