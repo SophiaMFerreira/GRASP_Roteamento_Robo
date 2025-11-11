@@ -39,7 +39,7 @@ pesoMovimentos = {
 
 random.seed()
 tamanhoLCR = 3;
-condPlator = 50;
+condPlator = 100;
 maxIteracao = 1000;
 
 def geraMovimentoAleatorio():
@@ -235,3 +235,4 @@ imprimeGrafico(melhorRota);
 print("\n========== Resultado GRASP ==========")
 
 print("Melhor custo Final: ", melhorCusto);
+
